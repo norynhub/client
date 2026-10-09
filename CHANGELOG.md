@@ -2,6 +2,80 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.5.0
+
+A Workstation instalada passa a executar. Até aqui `install` guardava o pacote,
+conferia a assinatura e nada mais: `noryn run` só sabia carregar a Workstation
+do código-fonte do monorepo, então na máquina de quem recebeu o pacote o
+comando morria em "raiz Noryn não encontrada" com a estação instalada e
+verificada ao lado.
+
+- `noryn run`, `mcp`, `skill`, `capability` e `hook` abrem o pacote instalado
+  quando não há código-fonte. A CEK do payload é desembrulhada pelo control
+  plane mediante lease, o conteúdo é materializado num diretório temporário só
+  para a leitura e apagado em seguida. Código-fonte continua na frente: na
+  máquina de quem desenvolve, rodar usa a edição e não a cópia instalada.
+- Abrir o pacote é onde a entitlement passa a ser cobrada. Ter o arquivo não
+  basta; sem lease válida o payload não abre.
+- A CEK aberta fica em cache cifrada com a chave local, para a segunda
+  execução não depender de rede. Antes o cache guardava a árvore em claro, que
+  custava mais do que o próprio pacote (106 MB para um de 80 MB) e deixava o
+  conteúdo decifrado em disco ao lado do pacote cifrado.
+- O pacote passa a registrar de qual ref veio cada dependência, e a levar
+  plugin e MCP que moram fora do diretório da Workstation. Sem isso um ref
+  `@componente` não resolvia depois de instalado e um plugin de registry saía
+  do build sem entrar no pacote.
+- `PublicUserDisplayName` usava o próprio tipo em vez do receptor e descartava
+  a configuração de quem chamou.
+
+E a entrega publicada passa a abrir. A CEK do payload é embrulhada
+simetricamente com `tenant/<org>`, mas o workflow criava um KMS novo por
+execução: a chave morria com o runner, e o pacote publicado ficava
+verificável e inabrível por qualquer cliente, inclusive por quem o publicou.
+O `release.pub` também mudava a cada execução, então quem pinou a chave de uma
+release não verificava a seguinte.
+
+- O workflow de entrega restaura o KMS de um secret e para se ele não existir,
+  em vez de assinar com chave nova. `./scripts/release-kms.sh` cria o estado,
+  exporta para o secret e mostra a chave da organização.
+- `noryn tenant import|list` guarda no cliente a chave que abre os pacotes de
+  uma organização. É o modo local do formato, o mesmo papel que `noryn trust`
+  cumpre para assinatura. A ordem para abrir passa a ser: CEK em cache,
+  control plane, chave local.
+- `noryn-control tenant-key <org>` mostra a chave para entregar. Fica fora do
+  servidor de propósito: por rota HTTP, um token administrativo vazado valeria
+  acesso ao conteúdo de todos os pacotes.
+- O INSTALL.md de cada release ensina o passo da chave. Ela não entra no
+  repositório da entrega, pelo mesmo motivo do `.env`.
+- `EnsureTenant` e `TenantKey` passam a resolver sob a mesma trava. Com duas
+  seções críticas havia uma janela em que o id voltava e a chave não estava
+  mais no mapa.
+
+E instalar qualquer Workstation fica simples. O pacote não leva interpretador,
+compilador nem CLI de terceiro, e não deveria; o que faltava era a Workstation
+poder dizer de que ferramentas ela depende. Até aqui isso existia por plugin,
+só no `validate` do autor, sem versão mínima, sem mapa por sistema e sem link:
+quem instalava descobria na primeira falha de execução.
+
+- `requirements` no `workstation.json` declara comando, versão mínima, motivo,
+  link e instalador por sistema operacional. Vai também no manifesto assinado,
+  então `noryn inspect` mostra antes de instalar e `noryn requirements` lê sem
+  precisar da chave que abre o payload.
+- `noryn requirements [org/nome] [--install] [--yes]` confere e instala o que
+  falta, pedindo permissão a cada item. Não reinstala o que já está lá, não
+  executa instalador que exige root (imprime a linha com `sudo`) e não oferece
+  gerenciador que não está no PATH, caso em que sobra o link.
+- Depois de instalar, confere de novo em vez de confiar na saída zero do
+  gerenciador, que com frequência retorna sucesso sem deixar o comando no
+  PATH.
+- `install` e `update` imprimem o relatório ao final quando algo falta, sem
+  derrubar a instalação: o pacote já está em disco e verificado.
+- A estação da eadskill declara git, gh, go, python e uv.
+- `install` passa a conferir o runtime mínimo do manifesto, que era gravado e
+  nunca lido. Um binário velho instalava um pacote que não sabe abrir e a
+  falha aparecia só no `run`, longe da causa. Valor que não parseia em três
+  campos não bloqueia.
+
 ## 1.4.0
 
 O Observatory passa a servir uma empresa de verdade, e não um cenário escrito
