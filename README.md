@@ -35,7 +35,7 @@ No Windows, renomeie para `noryn.exe` ou chame o arquivo direto.
 ```bash
 noryn auth github --token "$GITHUB_TOKEN"
 ver=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.raw" https://api.github.com/repos/norynhub/example/contents/channels/engineering/stable)
-noryn install "example/engineering"
+noryn install "example/engineering" --env-file .env
 noryn run example/engineering --target cursor --projection temp --once
 noryn run example/engineering --target codex --projection temp --once
 noryn run example/engineering --target claude --projection temp --once
@@ -43,5 +43,14 @@ noryn run example/engineering --target opencode --projection temp --once
 ```
 
 O token também pode vir de `NORYN_GITHUB_TOKEN` ou de `gh auth token`. Sem control plane, baixe o `.noryn` da release `engineering-v<versão>` em `norynhub/example` e rode `noryn install` no arquivo.
+
+`--env-file` grava credenciais do operador fora do pacote. Chaves soltas entram, no `noryn run`, só no MCP que declara o nome. Para um servidor específico:
+
+```bash
+noryn mcp env set example/engineering firecrawl-mcp --env-file .env.firecrawl
+noryn mcp env show example/engineering
+```
+
+`show` lista nomes, sem valores.
 
 `noryn version` avisa quando uma release mais nova deste repositório pede outro binário. Para isso, defina `NORYN_HUB_TOKEN`.
