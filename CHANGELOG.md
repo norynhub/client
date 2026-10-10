@@ -2,6 +2,50 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.6.0
+
+- `noryn run --project <pasta>` projeta na pasta que você escolher em vez da
+  pasta de sessão. A projeção carrega a configuração do agente e nenhum
+  código, e harness lê `AGENTS.md` e `.cursor/` da raiz do workspace aberto;
+  sem isso, usar a Workstation no próprio repositório não tinha caminho, e
+  `noryn dev --project` é comando de autor, ausente do cliente.
+
+  Não vira dono da pasta: confere os conflitos todos antes de escrever o
+  primeiro arquivo, recusa sem sobrescrever nada seu, e no encerramento remove
+  só o que escreveu. Diretório que já tinha conteúdo fica de pé. Recusa junto
+  com `--projection fuse`, que esconderia a pasta enquanto a sessão durasse.
+- A estação da eadskill passa a declarar `docker`, `npx` e `lightpanda`. Os
+  MCPs `eadskill-atlassian`, `firecrawl-mcp` e `lightpanda` executam esses
+  três, e nenhum estava declarado: numa máquina nova o harness subia e os
+  servidores falhavam em silêncio.
+
+Um bundle de control plane não apaga mais chave pinada. `refreshTrust` gravava
+as chaves do bundle no mesmo `trust/keys.json` do pino, então sincronizar
+confiança contra qualquer control plane alcançável substituía em silêncio a
+chave que alguém tinha pinado à mão, e o pacote do publisher passava a dar
+"assinatura inválida", que é a mensagem de adulteração, para um problema de
+procedência de chave.
+
+- Pino e cópia do control plane passam a morar em arquivos separados:
+  `trust/keys.json` guarda o que foi pinado, `trust/bundle-keys.json` o que o
+  control plane mandou. Na verificação o pino vence.
+- As chaves do bundle entram só no escopo em que o comando está operando.
+  Antes uma operação de projeto escrevia também no home do usuário e mudava a
+  confiança de todas as outras instalações da máquina.
+- `noryn trust remove <keyId>` apaga um pino. Pinar a chave errada acontece, e
+  sem isto só dava para editar o JSON à mão.
+- `noryn trust add|remove|list` aceitam `--scope`, como install: a Workstation
+  pode estar instalada em escopo de projeto e a chave que a verifica precisa
+  poder morar ao lado dela.
+- `noryn trust list` diz a origem de cada chave, pinada ou do control plane. A
+  procedência era exatamente a informação que faltava.
+- A recusa por assinatura passa a sugerir conferir a procedência da chave em
+  vez de só dizer que a assinatura é inválida.
+
+Migração: quem já tem `trust/keys.json` com chaves copiadas de um control
+plane continua com elas como pino, e pino vence. Se alguma for de outra
+origem que não quem publicou o pacote, `noryn trust remove <keyId>` resolve.
+
 ## 1.5.0
 
 A Workstation instalada passa a executar. Até aqui `install` guardava o pacote,
