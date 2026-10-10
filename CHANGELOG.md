@@ -2,6 +2,33 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.7.0
+
+Instalar ficou um comando. `install org/nome` só sabia resolver pelo
+marketplace do control plane, e control plane hospedado não existe: quem
+recebia a entrega tinha de achar o caminho do `.noryn` dentro do repositório,
+baixar à mão, copiar a chave pública, pinar e só então instalar.
+
+- `install org/nome` resolve no repositório da entrega quando o control plane
+  não responde. Lê `release.json` para a versão e o caminho do artefato,
+  confere o `sha256` publicado ao lado dele, e fixa a chave de `release.pub`
+  quando nada está fixado para aquele id. O nome do repositório é convenção:
+  `norynhub/<org>`.
+- `install --tenant-key <arquivo>` guarda a chave que abre o payload da
+  organização no mesmo comando. Ela é lida e conferida antes do download:
+  errar o caminho depois de 80 MB é desperdício.
+- O cliente ganha instalador de uma linha, publicado junto da release:
+  `curl -fsSL https://raw.githubusercontent.com/norynhub/client/main/install.sh | sh`.
+  Detecta sistema e arquitetura, confere o `sha256` contra o `SHA256SUMS`
+  publicado e recusa sem instalar nada quando não bate. `NORYN_BIN` escolhe o
+  diretório e um argumento fixa a tag.
+- O `INSTALL.md` de cada release passa a liderar com esse caminho.
+
+Fixar a chave na primeira instalação é anunciado na saída, porque é decisão de
+confiança, e nunca sobrescreve pino existente. O passo manual que isto
+substitui era copiar a chave do mesmo repositório, então não se perde garantia
+nenhuma, só digitação.
+
 ## 1.6.0
 
 - `noryn run --project <pasta>` projeta na pasta que você escolher em vez da

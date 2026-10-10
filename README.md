@@ -12,6 +12,27 @@ O runtime desta linha é o número da tag, sem o `v`. A release `v1.3.0` é o bi
 
 ## Instalar
 
+```bash
+curl -fsSL https://raw.githubusercontent.com/norynhub/client/main/install.sh | sh
+```
+
+O script detecta sistema e arquitetura, confere o `sha256` contra o `SHA256SUMS` publicado e grava o binário em `~/.local/bin`. Para escolher outro diretório use `NORYN_BIN`, e para fixar uma versão passe a tag:
+
+```bash
+NORYN_BIN=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/norynhub/client/main/install.sh | sh -s v1.6.0
+```
+
+Depois, a Workstation da sua organização em um comando:
+
+```bash
+noryn auth github
+noryn install <org>/<nome> --tenant-key chave-<org>.key --env-file .env
+```
+
+`install` pelo nome resolve a versão no repositório da entrega, confere o `sha256` publicado, fixa a chave de quem publicou e instala. A chave da organização chega por fora do repositório, pelo canal dela.
+
+### À mão
+
 Baixe o arquivo do seu sistema na [release](https://github.com/norynhub/client/releases), confira `SHA256SUMS` e coloque o binário no `PATH`.
 
 | Sistema | Arquivo |
