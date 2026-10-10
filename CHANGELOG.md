@@ -2,6 +2,17 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.9.0
+
+- `install --scope project` numa pasta que ainda não é projeto Noryn cria
+  `./.noryn` e anuncia onde. Antes era preciso um `mkdir .noryn/workstations`
+  antes, e quem chegava agora batia em "nenhum projeto Noryn encontrado" no
+  primeiro comando. Instalar é o ato que faz de uma pasta um projeto, então o
+  install cria; `uninstall`, `update`, `rollback` e `run` continuam apenas
+  procurando, porque neles não achar instalação é resposta honesta.
+- `run --once` já desfazia a projeção ao fechar a sessão, mas anunciava o
+  caminho como se algo tivesse ficado de pé. Agora diz que conferiu e desfez.
+
 ## 1.8.0
 
 - `install` lê a chave da organização de `.noryn/tenant-keys/<org>.key` no

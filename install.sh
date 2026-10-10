@@ -76,4 +76,6 @@ esac
 
 printf '\nPróximo passo, com a Workstation da sua organização:\n'
 printf '  noryn auth github\n'
-printf '  noryn install <org>/<nome> --tenant-key chave-<org>.key\n'
+printf '  noryn install <org>/<nome>\n'
+printf '\nPara prender o pacote a uma pasta, de dentro dela:\n'
+printf '  noryn install <org>/<nome> --scope project\n'
