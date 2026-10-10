@@ -2,6 +2,19 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.8.0
+
+- `install` lê a chave da organização de `.noryn/tenant-keys/<org>.key` no
+  monorepo quando nada foi passado e nada está guardado no escopo. Enquanto só
+  quem é da Noryn instala estas Workstations, isso dispensa carregar o arquivo
+  à mão em cada máquina; quem não tem acesso ao monorepo recebe 404 e cai na
+  mensagem que diz como importar a chave. Chave já guardada nunca é reescrita,
+  pela mesma regra que vale para pino de chave pública.
+
+Quando existir portal de distribuição, essas chaves saem do git e precisam ser
+**trocadas**, não apenas apagadas: o que entrou no histórico fica.
+`.noryn/tenant-keys/README.md` registra isso ao lado dos arquivos.
+
 ## 1.7.0
 
 Instalar ficou um comando. `install org/nome` só sabia resolver pelo
