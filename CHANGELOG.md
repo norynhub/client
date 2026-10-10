@@ -2,6 +2,16 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.10.0
+
+- Cache de revogação vencido em `~/.noryn` não derruba mais install num escopo
+  que nunca sincronizou. O cache do próprio escopo segue sendo recusa quando
+  vence, porque lista de revogação velha não pode afirmar que nada foi
+  revogado; o de outro escopo é empréstimo, e vencido vira ausência, que é o
+  estado de quem nunca sincronizou. Antes disso, um bundle esquecido de um
+  control plane de desenvolvimento passava a recusar todo install offline, em
+  qualquer pasta, 24 horas depois.
+
 ## 1.9.0
 
 - `install --scope project` numa pasta que ainda não é projeto Noryn cria
