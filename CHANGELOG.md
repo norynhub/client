@@ -2,6 +2,32 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.12.0
+
+- A projeção escreve o orquestrador do pacote como agent principal chamado
+  `noryn`, nos alvos que escolhem agent por nome. Em claude não havia agent
+  principal nenhum, então `claude --agent noryn` não existia e quem abria o
+  harness começava no agent padrão: lê a instrução, mas não é o orquestrador
+  declarado e não sabe que os subagentes são dele. O arquivo do principal
+  passou a carregar a instrução de verdade, com os subagentes listados, em vez
+  do parágrafo fixo que só o copilot recebia.
+- Subagente chamado `noryn` não sobrescreve mais o agent principal. Era colisão
+  silenciosa no kiro, cujo principal já morava em `.kiro/agents/noryn.json`.
+- `run` imprime o comando que abre cada harness, já no agent principal e
+  apontando para a pasta projetada. Era preciso saber de cabeça o nome do agent
+  e, em cada harness, qual é a flag dele.
+- `run --open` abre o harness nesta janela e fecha a sessão quando ele sair,
+  então não são mais dois terminais. Pede um alvo só. Enquanto o harness está
+  na frente o Ctrl+C é dele, e a projeção é desfeita quando ele sai, inclusive
+  quando sai com erro ou quando o harness não está no PATH.
+- `run --dangerously-skip-permissions` emenda no comando a flag de cada
+  harness: `--dangerously-skip-permissions` no claude, `--auto` no opencode,
+  `--dangerously-bypass-approvals-and-sandbox` no codex. Harness sem
+  equivalente sai sem nada em vez de receber flag inventada.
+- Alvo desconhecido em `--target` é recusado antes de abrir sessão, não depois
+  do lease e da projeção. `--open` com mais de um alvo, ou junto de `--once`,
+  também.
+
 ## 1.11.1
 
 - `.mcp.json` passa a usar a chave `mcpServers`. O Claude Code recusa o arquivo
