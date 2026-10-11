@@ -2,6 +2,24 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.11.0
+
+- `run --target` aceita vários harnesses na mesma pasta:
+  `--target claude,cursor,opencode`. Uma sessão, um lease, um Ctrl+C. Cada
+  harness lê o diretório dele, o que é compartilhado sai idêntico, e os dois
+  nomes que vários alvos dividem (a instrução e `.noryn/session.json`) passam a
+  citar todos. Nome repetido com conteúdo diferente entre alvos é recusa.
+- A projeção passa a citar o id real da sessão no comando MCP de cada harness.
+  Antes citava o literal `pending`, então `noryn mcp serve` falhava em achar a
+  sessão e o servidor MCP da Workstation não subia em harness nenhum.
+- `mcp serve` ganhou `--home`, que a projeção preenche, e passou a procurar a
+  sessão em project, user e global quando ninguém diz. O harness roda na pasta
+  de código de quem usa, que pode não ter relação com onde a Workstation está
+  instalada; antes a busca olhava apenas `~/.noryn`.
+- A projeção recusa nome de arquivo que saia da pasta projetada. Vinha do
+  pacote, que é assinado, mas com `--project` a pasta é o repositório de quem
+  usa, e a mesma conferência já existia na instalação do envelope.
+
 ## 1.10.0
 
 - Cache de revogação vencido em `~/.noryn` não derruba mais install num escopo
