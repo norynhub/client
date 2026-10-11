@@ -2,6 +2,20 @@
 
 Versões do binário `noryn`. A tag git usa o prefixo `v`.
 
+## 1.11.1
+
+- `.mcp.json` passa a usar a chave `mcpServers`. O Claude Code recusa o arquivo
+  inteiro quando a chave de topo é `servers` ("Missing mcpServers, found
+  servers instead"), então toda projeção para claude subia sem servidor MCP
+  nenhum, inclusive sem o `noryn`, que é a ponte da Workstation. `servers` fica
+  só em `.vscode/mcp.json`, que é o formato do VS Code.
+- Caminho de plugin declarado no pacote segue o alvo em projeção. Um servidor
+  MCP que cita `.cursor/plugins/<nome>/...` passa a citar
+  `.claude/plugins/<nome>/...` quando o alvo é claude, e assim por diante: o
+  arquivo existe em cada alvo com o prefixo daquele harness, e o servidor subia
+  apontando para uma pasta que não existia. `.kiro/settings/mcp.json`, que lê a
+  entrada no formato do Cursor, passa a citar os caminhos do kiro.
+
 ## 1.11.0
 
 - `run --target` aceita vários harnesses na mesma pasta:
